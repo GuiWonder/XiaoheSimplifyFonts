@@ -1,5 +1,5 @@
 import os
-from shutil import copy
+from shutil import copy, rmtree
 shurl=[
 	"https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SimplifiedChinese/SourceHanSansSC-Bold.otf", 
 	"https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SimplifiedChinese/SourceHanSansSC-ExtraLight.otf", 
