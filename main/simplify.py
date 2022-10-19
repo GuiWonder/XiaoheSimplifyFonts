@@ -56,15 +56,8 @@ def transforme():
             s = s.strip()
             t = t.strip()
             if s and t and s != t:
-                addunicodest(str(ord(t)), str(ord(s)))
-
-def addunicodest(tunic, sunic):
-    if tunic not in font['cmap']:
-        return
-    if sunic in font['cmap']:
-        unu.add(font['cmap'][sunic])
-    tname = font['cmap'][tunic]
-    font['cmap'][sunic] = tname
+                if str(ord(t)) in font['cmap']:
+                    font['cmap'][str(ord(s))] = font['cmap'][str(ord(t))]
 
 def lookuptable():
     print('Building lookups...')
@@ -255,12 +248,6 @@ def rmglyph():
             if fs.split('_')[0]=='locl':
                 loc.update(set(font['GSUB']['features'][fs]))
     for subs in loc:
-        ftype=font['GSUB']['lookups'][subs]['type']
-        for subtable in font['GSUB']['lookups'][subs]['subtables']:
-            for j, t in list(subtable.items()):
-                if ftype=='gsub_single':
-                    unu.add(t)
-                    unu.add(j)
         del font['GSUB']['lookups'][subs]
         f1todel = set()
         for f1 in font['GSUB']['features'].keys():
@@ -268,47 +255,44 @@ def rmglyph():
                 font['GSUB']['features'][f1].remove(subs)
             if len(font['GSUB']['features'][f1]) == 0:
                 f1todel.add(f1)
-                continue
         for  f1 in f1todel:
             del font['GSUB']['features'][f1]
 
     print('Removing glyghs...')
-    lpuse=set()
     if 'GSUB' in font:
-        for lookup in font['GSUB']['lookups'].values():
-            if lookup['type'] == 'gsub_single':
-                for subtable in lookup['subtables']:
-                    for g1, g2 in list(subtable.items()):
-                        if g1 in usedg:
-                            lpuse.add(g1)
-                            lpuse.add(g2)
-            elif lookup['type'] == 'gsub_alternate':
-                for subtable in lookup['subtables']:
-                    for item in set(subtable.keys()):
-                        if item in usedg:
-                            lpuse.add(item)
-                            lpuse.update(set(subtable[item]))
-            elif lookup['type'] == 'gsub_ligature': 
-                for subtable in lookup['subtables']:
-                    for item in subtable['substitutions']:
-                        if set(item['from']).issubset(usedg):
-                            lpuse.update(set(item['from']))
-                            lpuse.add(item['to'])
-            elif lookup['type'] == 'gsub_chaining':
-                for subtable in lookup['subtables']:
-                    for ls in subtable['match']:
-                        for l1 in ls:
-                            lpuse.update(set(l1))
+        for lkn in font['GSUB']['lookupOrder']:
+            if lkn in font['GSUB']['lookups']:
+                lookup=font['GSUB']['lookups'][lkn]
+                if lookup['type'] == 'gsub_single':
+                    for subtable in lookup['subtables']:
+                        for g1, g2 in list(subtable.items()):
+                            if g1 in usedg:
+                                usedg.add(g2)
+                elif lookup['type'] == 'gsub_alternate':
+                    for subtable in lookup['subtables']:
+                        for item in set(subtable.keys()):
+                            if item in usedg:
+                                usedg.update(set(subtable[item]))
+                elif lookup['type'] == 'gsub_ligature': 
+                    for subtable in lookup['subtables']:
+                        for item in subtable['substitutions']:
+                            if set(item['from']).issubset(usedg):
+                                usedg.add(item['to'])
+                elif lookup['type'] == 'gsub_chaining':
+                    for subtable in lookup['subtables']:
+                        for ls in subtable['match']:
+                            for l1 in ls:
+                                usedg.update(set(l1))
 
     unusegl=set()
     unusegl.update(set(font['glyph_order']))
     notg={'.notdef', '.null', 'nonmarkingreturn', 'NULL', 'NUL'}
     unusegl.difference_update(notg)
     unusegl.difference_update(usedg)
-    unusegl.difference_update(lpuse)
     for ugl in unusegl:
         font['glyph_order'].remove(ugl)
         del font['glyf'][ugl]
+
     print('Checking Lookup tables...')
     if 'GSUB' in font:
         for lookup in font['GSUB']['lookups'].values():
@@ -362,7 +346,6 @@ if len(sys.argv) > 2:
     print('Loading font...')
     fin = sys.argv[1]
     font = json.loads(subprocess.check_output((otfccdump, '--no-bom', fin)).decode("utf-8", "ignore"))
-    unu=set()
     print('Adding variants...')
     addvariants()
     print('Transforming codes...')
