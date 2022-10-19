@@ -97,8 +97,6 @@ def build_char_table():
             s = s.strip()
             t = t.strip()
             if s and t and s != t:
-                codesc = ord(s)
-                codetc = ord(t)
                 if str(ord(s)) in font['cmap'] and str(ord(t)) in font['cmap']:
                     kt[font['cmap'][str(ord(s))]] = font['cmap'][str(ord(t))]
     font['GSUB']['lookups']['stchars'] = {
