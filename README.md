@@ -7,6 +7,9 @@
 ## 下载字体
 1. 可从本站 [Releases](https://github.com/GuiWonder/XiaoheSimplifyFonts/releases) 页面下载字体。
 2. 可从[腾讯微云](https://share.weiyun.com/VEoOc5xK)下载 XiaoheSimplify 系列字体。
-
+## 本项目用到的项目
+* [Adobe Fonts](https://github.com/adobe-fonts) [思源黑体](https://github.com/adobe-fonts/source-han-sans) [思源宋体](https://github.com/adobe-fonts/source-han-serif)
+* [otfcc](https://github.com/caryll/otfcc)
+* [Open Chinese Convert](https://github.com/BYVoid/OpenCC) 
 ## 关于作者
 - **Email：** chunfengfly@outlook.com
