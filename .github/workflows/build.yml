@@ -20,7 +20,7 @@ jobs:
     - name: Begin
       run: |
         chmod +x ./main/otfcc/*
-        sh ./build.sh
+        python3 ./build.py
     - uses: actions/upload-artifact@v3
       with:
         name: XiaoheSimplifySans
