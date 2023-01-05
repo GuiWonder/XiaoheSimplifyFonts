@@ -1,0 +1,37 @@
+
+name: Build
+
+on:
+  workflow_dispatch:
+  #push:
+    #branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install afdko
+      run: pip3 install afdko
+    - name: Begin
+      run: |
+        chmod +x ./main/otfcc/*
+        python3 ./build.py
+    - uses: actions/upload-artifact@v3
+      with:
+        name: XiaoheSimplifyFonts
+        path: "*.7z"
+        
+    - name: Upload to release
+      uses: ncipollo/release-action@v1
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        tag: "test-ttf-01"
+        artifacts: "*.7z"
+        allowUpdates: true
+        prerelease: true
+        draft: true
+        name: "Build Test"
+        body: "Xiaohe Simplify Fonts"
